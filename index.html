@@ -1,173 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Daily Video Call</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-    <meta charset="UTF-8">
-    <title>Nhóm 7 - CRUD Sinh Viên</title>
     <style>
-    body {
-        font-family: Arial;
-        padding: 20px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th,
-    td {
-        border: 1px solid #ccc;
-        padding: 8px;
+      body {
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: white;
+        margin: 0;
+        padding: 0;
         text-align: center;
-    }
+      }
 
-    th {
-        background: #f2f2f2;
-    }
+      h2 {
+        margin-top: 20px;
+      }
 
-    img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
+      #call-container {
+        width: 100%;
+        height: 90vh;
+        margin-top: 10px;
+      }
 
-    button {
-        padding: 5px 10px;
+      button {
+        padding: 12px 20px;
+        font-size: 16px;
         cursor: pointer;
-    }
-
-    input {
-        padding: 6px;
-        margin-right: 5px;
-    }
+        background: #22c55e;
+        border: none;
+        border-radius: 6px;
+        color: black;
+      }
     </style>
-</head>
+  </head>
+  <body>
+    <h2>📞 Daily Video Call</h2>
+    <button onclick="joinCall()">Join Call</button>
 
-<body>
+    <div id="call-container"></div>
 
-    <h2>CRUD Sinh Viên (MockAPI)</h2>
-    <h1>Nhóm 7</h1>
-    <p>
-        Thành viên:
-        <ul>
-            <li>Mè Thái Huy - DH52200775</li>
-            <li>Lê Thành Đức - DH52200521</li>
-            <li>Nguyễn Hoàng Lực - DH52201040</li>
-            <li>Bùi Nhật Lâm - DH52200966</li>
-            <li>Nguyễn Hà Tuấn Anh - DH52200327</li>
-        </ul>
-    </p>
-    <!-- FORM -->
-    <input type="hidden" id="id">
-    <input type="text" id="name" placeholder="Tên">
-    <input type="text" id="avatar" placeholder="Link avatar">
-    <button onclick="addOrUpdate()">Lưu</button>
-
-    <!-- TABLE -->
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tên</th>
-                <th>Avatar</th>
-                <th>Ngày tạo</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-    </table>
+    <!-- Daily SDK -->
+    <script src="https://unpkg.com/@daily-co/daily-js"></script>
 
     <script>
-    const API_URL = "https://69829b0c9c3efeb892a2bf8e.mockapi.io/sinhvien";
+      let callFrame;
 
-    // READ
-    function loadData() {
-        fetch(API_URL)
-            .then(res => res.json())
-            .then(data => {
-                const tbody = document.getElementById("tbody");
-                tbody.innerHTML = "";
+      function joinCall() {
+        if (callFrame) return;
 
-                data.forEach(item => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${item.id}</td>
-                            <td>${item.name}</td>
-                            <td><img src="${item.avatar}"></td>
-                            <td>${new Date(item.createdAt).toLocaleString("vi-VN")}</td>
-                            <td>
-                                <button onclick="editData('${item.id}','${item.name}','${item.avatar}')">Sửa</button>
-                                <button onclick="deleteData('${item.id}')">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            });
-    }
+        callFrame = DailyIframe.createFrame(
+          document.getElementById("call-container"),
+          {
+            showLeaveButton: true,
+            showFullscreenButton: true,
+          },
+        );
 
-    loadData();
-
-    // CREATE + UPDATE
-    function addOrUpdate() {
-        const id = document.getElementById("id").value;
-        const name = document.getElementById("name").value;
-        const avatar = document.getElementById("avatar").value;
-
-        const data = {
-            name,
-            avatar
-        };
-
-        if (id === "") {
-            // CREATE
-            fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            }).then(() => loadData());
-        } else {
-            // UPDATE
-            fetch(`${API_URL}/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            }).then(() => loadData());
-        }
-
-        clearForm();
-    }
-
-    // EDIT
-    function editData(id, name, avatar) {
-        document.getElementById("id").value = id;
-        document.getElementById("name").value = name;
-        document.getElementById("avatar").value = avatar;
-    }
-
-    // DELETE
-    function deleteData(id) {
-        if (confirm("Xóa sinh viên này?")) {
-            fetch(`${API_URL}/${id}`, {
-                    method: "DELETE"
-                })
-                .then(() => loadData());
-        }
-    }
-
-    function clearForm() {
-        document.getElementById("id").value = "";
-        document.getElementById("name").value = "";
-        document.getElementById("avatar").value = "";
-    }
+        callFrame.join({
+          url: "https://nhom7t4ca1.daily.co/test",
+        });
+      }
     </script>
-
-</body>
-
+  </body>
 </html>
